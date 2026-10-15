@@ -1,25 +1,13 @@
-#!/bin/bash
-set -e
-
-echo "🚀 Starting"
-
-# nginx همیشه روی پورت ثابت 3000 گوش می‌دهد
-export NGINX_PORT=3000
+echo "🚀 Starting ${PORT}..."
+mkdir -p /etc/x-ui
+cat > /etc/x-ui/config.json << EOF
+{
+  "webPort": ${PORT},
+  "webBasePath": "/",
+  "webListen": "0.0.0.0",
+  "logLevel": "info"
+}
+EOF
 
 cd /usr/local/x-ui
-
-echo "🔧 Applying settings"
-./x-ui setting -port 2053 -webBasePath /stars/ || true
-
-echo "🔧 Building nginx.conf for fixed port: $NGINX_PORT"
-envsubst '${NGINX_PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
-
-echo "▶️  Starting in background..."
-./x-ui &
-X_UI_PID=$!
-
-sleep 2
-
-echo "▶️  Starting nginx in foreground on port $NGINX_PORT..."
-nginx -t
-exec nginx -g "daemon off;"
+./x-ui
