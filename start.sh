@@ -1,23 +1,25 @@
 #!/bin/bash
+set -e
 
-# 1. تعیین پورت پنل
-# هنگام استقرار روی پلتفرم‌هایی مثل Railway، متغیر PORT به طور خودکار تزریق می‌شود
-PANEL_PORT="${PORT:-2053}"
-echo "🚀 در حال راه‌اندازی x-ui روی پورت ${PANEL_PORT}..."
+echo "🚀 Starting"
 
-# 2. اطمینان از وجود پوشه‌های ضروری
-mkdir -p /etc/x-ui
-mkdir -p /var/log/x-ui
+# nginx د
+export NGINX_PORT=3000
 
-# 3. وارد شدن به پوشه x-ui
-cd /usr/local/x-ui || exit 1
+cd /usr/local/x-ui
 
-# 4. تنظیم پورت پنل و مسیر پایه از طریق روش صحیح
-# نکته: مستقیماً از دستور x-ui setting استفاده کنید، نه config.json
-./x-ui setting -port "${PANEL_PORT}" -webBasePath "/" -listenIP "0.0.0.0"
+echo "🔧 Applying settings"
+./x-ui setting -port 2053 -webBasePath /stars/ || true
 
-# 5. (اختیاری) تنظیم/بازنشانی نام کاربری و رمز عبور
-# ./x-ui setting -username "admin" -password "your_strong_password"
+echo "🔧 Building nginx.conf for fixed port: $NGINX_PORT"
+envsubst '${NGINX_PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 
-# 6. راه‌اندازی x-ui
-./x-ui
+echo "▶️  Starting in background..."
+./x-ui &
+X_UI_PID=$!
+
+sleep 2
+
+echo "▶️  Starting nginx in foreground on port $NGINX_PORT..."
+nginx -t
+exec nginx -g "daemon off;"
