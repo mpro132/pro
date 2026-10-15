@@ -37,7 +37,7 @@ fail2ban-server -b || true
 cd /usr/local/x-ui
 
 echo "Applying panel settings via x-ui CLI..."
-./x-ui setting -port 2053 -webBasePath /stars/ || true
+./x-ui setting -port 2053 -webBasePath /managepanel/ || true
 
 echo "Building nginx.conf for fixed port: $NGINX_PORT"
 envsubst '${NGINX_PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
