@@ -8,6 +8,5 @@ cat > /etc/x-ui/config.json << EOF
   "logLevel": "info"
 }
 EOF
-
 cd /usr/local/x-ui
 ./x-ui
